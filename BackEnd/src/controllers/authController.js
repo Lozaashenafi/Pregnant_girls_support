@@ -1,33 +1,32 @@
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
-
-// Secret key for JWT token signing
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
-
-// Login function for both doctors and patients
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
+  // Validate input
   if (!email || !password) {
-    return res.status(400).json({ message: "Email and password are required" });
+    return res
+      .status(400)
+      .json({ success: false, message: "Email and password are required" });
   }
 
   try {
     // Find the user by email (this can be either doctor or patient)
     const user = await prisma.user.findUnique({
       where: { email },
+      select: { id: true, name: true, email: true, password: true, role: true }, // Only select necessary fields
     });
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     // Compare the provided password with the stored hashed password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: "Invalid password" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid password" });
     }
 
     // Create JWT token
@@ -35,7 +34,9 @@ const loginUser = async (req, res) => {
       expiresIn: "1h", // Token expires in 1 hour
     });
 
+    // Send response with success flag
     return res.status(200).json({
+      success: true, // Include success flag
       message: "Login successful",
       token,
       user: {
@@ -46,8 +47,10 @@ const loginUser = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Internal server error" });
+    console.error("Login error: ", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
   }
 };
 

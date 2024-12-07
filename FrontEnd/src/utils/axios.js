@@ -8,14 +8,16 @@ const instance = axios.create({
 
 // Set the token in the request headers
 instance.interceptors.request.use(async (config) => {
-  const data = await getAuth();
-  console.log(data.token);
-  const token = data.token;
+  const userData = await getAuth();
+  const token = userData.token;
+
   if (token) {
     config.headers = {
-      authorization: token,
+      ...config.headers, // Keep any existing headers
+      authorization: `Bearer ${token}`, // Add the token to the Authorization header
     };
   }
+
   return config;
 });
 

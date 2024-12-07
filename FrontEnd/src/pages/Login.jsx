@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext"; // Import the AuthContext
 import { Link } from "react-router-dom"; // Import Link from react-router-dom
 import women from "../assets/image/women.jpg";
+import authService from "../services/authService"; // Import authService directly
 
 const Login = () => {
-  const { login } = useAuth(); // Get the login function from context
   const navigate = useNavigate(); // Hook to navigate programmatically
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -15,8 +14,13 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await login(email, password); // Login using the context function
-      navigate("/dashboard"); // Redirect to dashboard after successful login
+      console.log(email, password);
+      const response = await authService.login({ email, password }); // Login using the authService
+      if (response.success) {
+        navigate("/dashboard"); // Redirect to dashboard after successful login
+      } else {
+        setError(response.message); // Set error message from response
+      }
     } catch (err) {
       setError("Invalid credentials, please try again."); // Set error message if login fails
     }
