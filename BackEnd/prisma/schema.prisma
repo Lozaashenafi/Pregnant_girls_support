@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL") // Ensure your .env file contains a valid MySQL connection string
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   // "Doctor" | "Patient"
+  createdAt DateTime @default(now())
+  phoneNumber String?  // Add this line to include phoneNumber
+  Doctor    Doctor?
+  Patient   Patient?
+}
+model Appointment {
+  id        Int      @id @default(autoincrement())
+  patientId Int
+  doctorId  Int
+  date      DateTime
+  status    String   // "Pending" | "Approved" | "Cancelled"
+  Patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  Doctor    Doctor   @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+}
+model Patient {
+  id                Int      @id @default(autoincrement())
+  userId            Int      @unique
+  height            Float?   // Height in cm
+  weight            Float?   // Initial weight
+  bloodType         String?  // Blood type, e.g., A+, O-
+  medicalHistory    Json?    // JSON to store detailed medical history
+  allergies         String?  // Allergies description
+  currentMedications String? // Current medications
+  immunizations     String?  // Updated immunization record
+  doctorId          Int?     // Assigned doctor
+  doctorAccepted    Boolean  @default(false) // Doctor's acceptance status
+  dueDate           DateTime?
+  pregnancyDate     DateTime? // Add this line for pregnancyDate
+  User              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Doctor            Doctor?  @relation("DoctorPatient", fields: [doctorId], references: [id], onDelete: SetNull)
+  Appointments      Appointment[] // One-to-many relationship with Appointment
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+
+model Doctor {
+  id           Int          @id @default(autoincrement())
+  userId       Int          @unique
+  specialty    String
+  availability String
+  hospitalName String       // Hospital name
+  patients     Patient[]    @relation("DoctorPatient")
+  User         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Appointments Appointment[] 
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @default(now()) @updatedAt  // Set default value and auto-update
+  notifications Notification[]
+}
+
+
+
+model Resource {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  contentUrl  String
+  trimester   Int
+  createdAt   DateTime @default(now())
+}
+model Notification {
+  id        Int      @id @default(autoincrement())
+  doctorId  Int
+  message   String
+  status    String  // Example statuses: "Pending", "Read", etc.
+  createdAt DateTime @default(now())
+  
+  Doctor    Doctor   @relation(fields: [doctorId], references: [id])
+}

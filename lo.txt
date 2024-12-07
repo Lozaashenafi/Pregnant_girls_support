@@ -1,0 +1,36 @@
+pregnancy-support-backend/
+├── prisma/                  # Prisma configuration and migration files
+│   ├── schema.prisma        # Prisma schema
+├── src/                     # Application source code
+│   ├── controllers/         # Route handlers
+│   │   ├── authController.js
+│   │   ├── doctorController.js
+│   │   ├── patientController.js
+│   │   ├── chatController.js
+│   │   └── communityController.js
+│   ├── middlewares/         # Custom middlewares
+│   │   ├── authMiddleware.js
+│   │   └── errorMiddleware.js
+│   ├── routes/              # API routes
+│   │   ├── authRoutes.js
+│   │   ├── doctorRoutes.js
+│   │   ├── patientRoutes.js
+│   │   ├── chatRoutes.js
+│   │   └── communityRoutes.js
+│   ├── models/              # Database model extensions or helpers
+│   ├── services/            # Business logic
+│   │   ├── authService.js
+│   │   ├── doctorService.js
+│   │   ├── patientService.js
+│   │   ├── chatService.js
+│   │   └── communityService.js
+│   ├── utils/               # Utility functions
+│   │   ├── jwtUtils.js
+│   │   ├── logger.js
+│   │   └── validation.js
+│   ├── app.js               # Express app setup
+│   ├── server.js            # Server initialization
+│   └── config.js            # Configuration settings (e.g., environment variables)
+├── .env                     # Environment variables
+├── package.json             # Project metadata and dependencies
+└── README.md                # Project documentation
