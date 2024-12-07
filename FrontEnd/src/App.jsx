@@ -5,10 +5,7 @@ import { Route, Routes } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
-import AboutUsPage from "./pages/AboutUsPage";
-import ContactPage from "./pages/ContactPage";
-import Doctors from "./pages/Doctor";
-import Services from "./pages/Services";
+import Register from "./pages/Register";
 
 const App = () => {
   const { isLoggedIn, userData } = useAuth(); // Example usage of auth context
@@ -17,10 +14,7 @@ const App = () => {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/aboutus" element={<AboutUsPage />} />
-      <Route path="/contactus" element={<ContactPage />} />
-      <Route path="/doctors" element={<Doctors />} />
-      <Route path="/service" element={<Services />} />
+      <Route path="/register" element={<Register />} />
     </Routes>
   );
 };

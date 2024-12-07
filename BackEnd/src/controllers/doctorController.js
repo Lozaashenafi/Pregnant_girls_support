@@ -70,7 +70,6 @@ const registerDoctor = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
-
 // Endpoint to accept or decline the pregnant woman's request
 const respondToPregnantWoman = async (req, res) => {
   const { id } = req.params;
@@ -155,5 +154,108 @@ const respondToPregnantWoman = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+const getDoctorsList = async (req, res) => {
+  try {
+    // Fetch the list of doctors from the database, including the doctor name from the User model
+    const doctors = await prisma.doctor.findMany({
+      include: {
+        User: {
+          select: {
+            name: true, // Include the name from the User model
+          },
+        },
+      },
+    });
 
-module.exports = { registerDoctor, respondToPregnantWoman };
+    if (!doctors || doctors.length === 0) {
+      return res.status(404).json({ message: "No doctors found." });
+    }
+
+    // Format the doctor data to include the name
+    const doctorsWithName = doctors.map((doctor) => ({
+      id: doctor.id,
+      specialty: doctor.specialty,
+      availability: doctor.availability,
+      hospitalName: doctor.hospitalName,
+      name: doctor.User.name, // Add name from User model
+    }));
+
+    // Return the list of doctors with their names
+    return res.status(200).json({
+      message: "Doctors retrieved successfully",
+      doctors: doctorsWithName,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const createAppointment = async (req, res) => {
+  const { patientId, doctorId, date, status = "Pending" } = req.body;
+
+  // Validate input
+  if (!patientId || !doctorId || !date) {
+    return res.status(400).json({ message: "All fields are required." });
+  }
+
+  try {
+    // Validate if patient exists
+    const patient = await prisma.patient.findUnique({
+      where: { id: patientId },
+    });
+
+    if (!patient) {
+      return res.status(404).json({ message: "Patient not found." });
+    }
+
+    // Validate if doctor exists
+    const doctor = await prisma.doctor.findUnique({
+      where: { id: doctorId },
+    });
+
+    if (!doctor) {
+      return res.status(404).json({ message: "Doctor not found." });
+    }
+
+    // Check doctor's availability (Optional: Customize this logic as needed)
+    const doctorAvailability = doctor.availability
+      .split(",")
+      .map((day) => day.trim());
+    const appointmentDate = new Date(date);
+    const appointmentDay = appointmentDate.toLocaleString("en-US", {
+      weekday: "long",
+    });
+
+    if (!doctorAvailability.includes(appointmentDay)) {
+      return res
+        .status(400)
+        .json({ message: `Doctor is not available on ${appointmentDay}.` });
+    }
+
+    // Create appointment
+    const appointment = await prisma.appointment.create({
+      data: {
+        patientId,
+        doctorId,
+        date: new Date(date),
+        status,
+      },
+    });
+
+    return res.status(201).json({
+      message: "Appointment created successfully",
+      appointment,
+    });
+  } catch (error) {
+    console.error("Error creating appointment:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+module.exports = {
+  registerDoctor,
+  respondToPregnantWoman,
+  getDoctorsList,
+  createAppointment,
+};

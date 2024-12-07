@@ -13,5 +13,13 @@ router.put(
   checkRole("Doctor"), // Role-based authorization middleware
   doctorController.respondToPregnantWoman
 );
+// Route to get a list of doctors
+router.get("/list", doctorController.getDoctorsList); // Ensure only admins can access the list
+router.post(
+  "/createappointment",
+  authenticate,
+  checkRole("Doctor"),
+  doctorController.createAppointment
+); // Ensure only admins can access the list
 
 module.exports = router;

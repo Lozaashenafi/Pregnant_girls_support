@@ -9,15 +9,15 @@ const patientRoutes = require("./src/routes/patientRoutes"); // Import the patie
 dotenv.config(); // Load environment variables
 const app = express();
 
-// CORS configuration to allow credentials from the frontend origin
-const corsOptions = {
-  origin: "http://localhost:5173", // Your frontend URL
-  methods: ["GET", "POST", "PUT", "DELETE"], // Allowed methods
-  credentials: true, // Allow credentials (cookies, authorization headers, etc.)
-};
+// // CORS configuration to allow credentials from the frontend origin
+// const corsOptions = {
+//   origin: "http://localhost:5173", // Your frontend URL
+//   methods: ["GET", "POST", "PUT", "DELETE"], // Allowed methods
+//   credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+// };
 
 // Middleware
-app.use(cors(corsOptions)); // Enable CORS with credentials support
+app.use(cors()); // Enable CORS with credentials support
 app.use(bodyParser.json());
 
 // Use /api prefix for routes from the auth router

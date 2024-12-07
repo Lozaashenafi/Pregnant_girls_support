@@ -63,8 +63,6 @@ model Doctor {
   notifications Notification[]
 }
 
-
-
 model Resource {
   id          Int      @id @default(autoincrement())
   title       String

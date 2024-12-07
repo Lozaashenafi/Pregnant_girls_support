@@ -75,7 +75,50 @@ const registerPregnantWoman = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+const calculatePregnancyDuration = (pregnancyDate) => {
+  const currentDate = new Date();
+  const startDate = new Date(pregnancyDate);
+
+  const differenceInMilliseconds = currentDate - startDate;
+  const days = Math.floor(differenceInMilliseconds / (1000 * 60 * 60 * 24));
+  const weeks = Math.floor(days / 7);
+
+  return {
+    weeks: weeks,
+    days: days % 7,
+  };
+};
+
+const getPatientById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const patient = await prisma.patient.findUnique({
+      where: { id: parseInt(id) },
+      include: { User: true },
+    });
+
+    if (!patient) {
+      return res.status(404).json({ message: "Patient not found." });
+    }
+
+    const pregnancyDuration = calculatePregnancyDuration(patient.pregnancyDate);
+
+    return res.status(200).json({
+      patient: {
+        id: patient.id,
+        name: patient.User.name,
+        pregnancyDate: patient.pregnancyDate,
+        pregnancyDuration,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+};
 
 module.exports = {
   registerPregnantWoman,
+  getPatientById,
 };
